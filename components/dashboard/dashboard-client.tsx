@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { ScannerPanel } from "@/components/dashboard/scanner-panel";
 import { StatsCards } from "@/components/dashboard/stats-cards";
 import { DoseLogPanel } from "@/components/dashboard/dose-log";
@@ -12,6 +12,7 @@ import {
   type DoseLog,
   type ScanRecord,
 } from "@/lib/simulation";
+import { useState } from "react";
 
 export function DashboardClient() {
   const [scans, setScans] = useState<ScanRecord[]>([]);
@@ -41,33 +42,43 @@ export function DashboardClient() {
   const palsu = scans.filter((s) => s.verdict === "palsu").length;
 
   return (
-    <div className="min-h-screen bg-[#faf6ee]">
-      <header className="border-b border-stone-200 bg-[#faf6ee]">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 md:px-8">
+    <div className="min-h-screen bg-paper">
+      <header className="bg-field-deep text-[#faf6ee]">
+        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4 md:px-8">
           <div className="flex items-center gap-3">
-            <Link href="/" className="text-sm text-stone-500 hover:text-[#1c5b3c]">
-              &larr; Beranda
+            <Link
+              href="/"
+              className="shrink-0 text-sm text-white/60 hover:text-white"
+            >
+              &larr; <span className="hidden sm:inline">Beranda</span>
             </Link>
-            <span className="text-stone-300">|</span>
-            <h1 className="text-lg font-bold text-stone-800">Dashboard Simulasi</h1>
-            <span className="rounded bg-[#d9a441]/20 px-2 py-0.5 text-xs font-bold text-[#8a6420]">
-              SIMULASI
-            </span>
+            <span className="text-white/20">|</span>
+            <Image
+              src="/images/taniverify-logo.webp"
+              alt="Logo TaniVerify"
+              width={30}
+              height={30}
+              className="h-[30px] w-[30px] rounded-lg"
+            />
+            <h1 className="text-[15px] font-bold md:text-base">
+              Dashboard Simulasi
+            </h1>
           </div>
-          <div className="flex items-center gap-2 text-sm text-stone-600">
+          <div className="flex items-center gap-2 text-[13px] text-white/70">
             <span className="relative flex h-2.5 w-2.5">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#1c5b3c] opacity-60" />
-              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[#1c5b3c]" />
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
+              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-400" />
             </span>
-            RC522 Terhubung (simulasi)
+            <span className="hidden sm:inline">RC522 terhubung</span>
+            <span className="sm:hidden">RC522</span>
           </div>
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl space-y-6 px-4 py-8 md:px-8">
-        <p className="rounded-xl border border-[#d9a441]/40 bg-[#d9a441]/10 p-4 text-sm text-stone-700">
-          Ini adalah simulasi antarmuka pendamping perangkat. Hasil pindai
-          diambil dari basis data contoh dan tidak mencerminkan karung sungguhan.
+      <main className="mx-auto max-w-6xl space-y-6 px-4 py-6 md:px-8 md:py-8">
+        <p className="text-xs text-stone-500">
+          Simulasi antarmuka pendamping perangkat — hasil pindai diambil dari
+          basis data contoh, bukan karung sungguhan.
         </p>
 
         <div className="grid gap-6 lg:grid-cols-5">
@@ -86,7 +97,11 @@ export function DashboardClient() {
 
         <div className="grid gap-6 lg:grid-cols-5">
           <div className="lg:col-span-3">
-            <DoseLogPanel logs={doseLogs} onAdd={addDoseLog} onDelete={deleteDoseLog} />
+            <DoseLogPanel
+              logs={doseLogs}
+              onAdd={addDoseLog}
+              onDelete={deleteDoseLog}
+            />
           </div>
           <div className="lg:col-span-2">
             <ActivityFeed scans={scans} />

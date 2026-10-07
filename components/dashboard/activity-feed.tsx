@@ -7,34 +7,42 @@ interface ActivityFeedProps {
 
 export function ActivityFeed({ scans }: ActivityFeedProps) {
   return (
-    <div className="rounded-xl border border-stone-200 bg-white p-6">
-      <h2 className="font-semibold text-stone-800">Aktivitas Terakhir</h2>
+    <div className="rounded-2xl border border-stone-200 bg-white p-5 md:p-6">
+      <h2 className="text-lg font-bold text-stone-800">Aktivitas Terakhir</h2>
       {scans.length === 0 ? (
-        <p className="mt-4 rounded-lg bg-stone-100 p-4 text-center text-sm text-stone-500">
-          Belum ada pindai pada sesi ini.
+        <p className="mt-4 border border-dashed border-stone-300 p-5 text-center text-sm text-stone-400">
+          Belum ada pindai pada sesi ini. Hasil pindaian akan tercatat di sini.
         </p>
       ) : (
-        <ul className="mt-4 space-y-3">
+        <ul className="relative mt-5 space-y-5 before:absolute before:bottom-2 before:left-[4px] before:top-2 before:w-px before:bg-stone-200">
           {scans.slice(0, 8).map((s) => (
-            <li
-              key={s.id}
-              className="flex items-center justify-between gap-3 rounded-lg border border-stone-100 px-4 py-3"
-            >
-              <div>
-                <p className="font-mono text-sm text-stone-800">{s.uid}</p>
-                <p className="text-xs text-stone-500">
-                  {formatWaktu(s.waktu)}
-                  {s.sack ? ` · ${s.sack.merk} ${s.sack.jenis}` : ""}
-                </p>
-              </div>
+            <li key={s.id} className="relative pl-6">
               <span
                 className={cn(
-                  "shrink-0 rounded-md px-2.5 py-1 text-xs font-bold text-white",
-                  s.verdict === "asli" ? "bg-[#1c5b3c]" : "bg-red-600"
+                  "absolute left-0 top-1 h-[9px] w-[9px] rounded-full ring-4 ring-white",
+                  s.verdict === "asli" ? "bg-field" : "bg-red-500"
                 )}
-              >
-                {s.verdict === "asli" ? "ASLI" : "PALSU"}
-              </span>
+                aria-hidden="true"
+              />
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="font-mono text-[13px] font-semibold text-stone-800">
+                    {s.uid}
+                  </p>
+                  <p className="mt-0.5 text-xs text-stone-500">
+                    {formatWaktu(s.waktu)}
+                    {s.sack ? ` · ${s.sack.merk} ${s.sack.jenis}` : ""}
+                  </p>
+                </div>
+                <span
+                  className={cn(
+                    "shrink-0 rounded px-2 py-0.5 text-[11px] font-bold tracking-wide text-white",
+                    s.verdict === "asli" ? "bg-field" : "bg-red-600"
+                  )}
+                >
+                  {s.verdict === "asli" ? "ASLI" : "PALSU"}
+                </span>
+              </div>
             </li>
           ))}
         </ul>

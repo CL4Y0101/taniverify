@@ -7,20 +7,27 @@ interface StatsCardsProps {
 
 export function StatsCards({ total, asli, palsu, doseLogs }: StatsCardsProps) {
   const stats = [
-    { label: "Total pindai", value: total, accent: "text-stone-800" },
-    { label: "Karung asli", value: asli, accent: "text-[#1c5b3c]" },
-    { label: "Karung palsu", value: palsu, accent: "text-red-600" },
-    { label: "Log dosis", value: doseLogs, accent: "text-stone-800" },
+    { label: "Total pindai", value: total, valueClass: "text-[#faf6ee]" },
+    { label: "Karung asli", value: asli, valueClass: "text-emerald-300" },
+    { label: "Karung palsu", value: palsu, valueClass: "text-red-400" },
+    { label: "Log dosis", value: doseLogs, valueClass: "text-amber" },
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-4">
-      {stats.map((s) => (
-        <div key={s.label} className="rounded-xl border border-stone-200 bg-white p-5">
-          <p className={`text-3xl font-bold ${s.accent}`}>{s.value}</p>
-          <p className="mt-1 text-sm text-stone-500">{s.label}</p>
-        </div>
-      ))}
+    <div className="h-full overflow-hidden rounded-2xl bg-field-deep text-[#faf6ee] shadow-xl">
+      <p className="border-b border-white/10 px-5 py-3 text-xs font-bold tracking-[0.22em] text-amber">
+        RINGKASAN
+      </p>
+      <div className="grid grid-cols-2 md:divide-x md:divide-white/10">
+        {stats.map((s) => (
+          <div key={s.label} className="px-5 py-5">
+            <p className={`font-mono text-4xl font-bold tabular-nums ${s.valueClass}`}>
+              {s.value}
+            </p>
+            <p className="mt-1 text-[13px] text-white/55">{s.label}</p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

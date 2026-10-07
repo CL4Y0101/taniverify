@@ -46,102 +46,106 @@ export function ScannerPanel({ onScan }: ScannerPanelProps) {
   const isGenuine = result?.verdict === "asli";
 
   return (
-    <div className="rounded-xl border border-stone-200 bg-white p-6">
-      <div className="flex items-center justify-between">
-        <h2 className="font-semibold text-stone-800">Panel Pemindai</h2>
-        <span className="rounded bg-[#d9a441]/20 px-2 py-0.5 text-xs font-bold text-[#8a6420]">
+    <div className="overflow-hidden rounded-2xl bg-[#0b1f16] shadow-xl">
+      <div className="flex items-center justify-between border-b border-white/10 px-5 py-3">
+        <p className="text-xs font-bold tracking-[0.22em] text-amber">
+          PANEL PEMINDAI
+        </p>
+        <span className="rounded bg-amber/15 px-2 py-0.5 text-[11px] font-bold tracking-wide text-amber">
           SIMULASI
         </span>
       </div>
 
-      <button
-        onClick={startScan}
-        disabled={phase === "scanning"}
-        className={cn(
-          "mt-5 flex w-full items-center justify-center rounded-xl px-6 py-4 text-lg font-bold",
-          phase === "scanning"
-            ? "cursor-wait bg-stone-200 text-stone-500"
-            : "bg-[#1c5b3c] text-white hover:bg-[#123c29]"
-        )}
-      >
-        {phase === "scanning" ? "Memindai..." : "Simulasi Pindai"}
-      </button>
+      <div className="relative min-h-[228px] px-5 py-5">
+        {phase === "scanning" && <div className="dash-scanline" aria-hidden="true" />}
 
-      {phase === "scanning" && (
-        <div className="mt-5">
-          <div className="h-3 overflow-hidden rounded-full bg-stone-200">
-            <div
-              className="h-3 rounded-full bg-[#d9a441] transition-[width] duration-75"
-              style={{ width: `${progress}%` }}
-            />
+        {phase === "idle" && (
+          <div className="font-mono text-[13px] leading-6 text-emerald-100/60">
+            <p>&gt; RC522 siap.</p>
+            <p>&gt; Dekatkan tag RFID ke pemindai,</p>
+            <p>
+              &gt; lalu tekan <span className="text-amber">PINDAI</span>
+              <span className="cursor-blink" aria-hidden="true" />
+            </p>
           </div>
-          <p className="mt-2 text-center text-sm text-stone-500">
-            Membaca UID... {progress}%
-          </p>
-        </div>
-      )}
+        )}
 
-      {phase === "done" && result && (
-        <div
+        {phase === "scanning" && (
+          <div className="font-mono text-[13px] leading-6">
+            <p className="text-emerald-100/80">&gt; Membaca UID...</p>
+            <p className="mt-3 text-3xl font-bold text-amber tabular-nums">
+              {progress}
+              <span className="text-lg">%</span>
+            </p>
+            <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/10">
+              <div
+                className="h-1.5 rounded-full bg-amber transition-[width] duration-75"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+          </div>
+        )}
+
+        {phase === "done" && result && (
+          <div>
+            <div className="flex flex-wrap items-center gap-3">
+              <span
+                className={cn(
+                  "rounded-md px-3 py-1 text-sm font-bold tracking-wide text-white",
+                  isGenuine ? "bg-field" : "bg-red-600"
+                )}
+              >
+                {isGenuine ? "ASLI" : "PALSU"}
+              </span>
+              <span className="font-mono text-[15px] text-amber">{result.uid}</span>
+            </div>
+
+            {isGenuine && result.sack ? (
+              <dl className="mt-4 space-y-1.5 font-mono text-[13px]">
+                {[
+                  ["merk", result.sack.merk],
+                  ["jenis", `${result.sack.jenis} · ${result.sack.beratKg} kg`],
+                  ["batch", result.sack.batch],
+                  ["produksi", result.sack.tglProduksi],
+                  ["distributor", result.sack.distributor],
+                ].map(([k, v]) => (
+                  <div key={k} className="flex gap-3">
+                    <dt className="w-24 shrink-0 text-emerald-100/40">{k}</dt>
+                    <dd className="text-emerald-50">{v}</dd>
+                  </div>
+                ))}
+              </dl>
+            ) : (
+              <div className="mt-4 font-mono text-[13px] leading-6">
+                <p className="text-red-400">&gt; UID tidak terdaftar.</p>
+                <p className="text-red-300/80">{result.reason}</p>
+                <p className="mt-2 text-emerald-100/50">
+                  &gt; Jangan gunakan pupuk ini. Laporkan ke distributor atau
+                  kelompok tani.
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      <div className="px-5 pb-5">
+        <button
+          onClick={startScan}
+          disabled={phase === "scanning"}
           className={cn(
-            "mt-5 rounded-xl border p-5",
-            isGenuine ? "border-[#1c5b3c]/30 bg-[#1c5b3c]/5" : "border-red-300 bg-red-50"
+            "w-full rounded-xl py-4 text-lg font-bold tracking-wide transition-colors",
+            phase === "scanning"
+              ? "cursor-wait bg-white/10 text-white/40"
+              : "bg-amber text-[#1a1207] hover:bg-amber-deep"
           )}
         >
-          <div className="flex items-center justify-between">
-            <span
-              className={cn(
-                "rounded-md px-3 py-1 text-sm font-bold text-white",
-                isGenuine ? "bg-[#1c5b3c]" : "bg-red-600"
-              )}
-            >
-              {isGenuine ? "ASLI" : "PALSU"}
-            </span>
-            <span className="font-mono text-sm text-stone-600">{result.uid}</span>
-          </div>
-
-          {isGenuine && result.sack ? (
-            <dl className="mt-4 space-y-2 text-sm">
-              <div className="flex justify-between gap-4">
-                <dt className="text-stone-500">Merk</dt>
-                <dd className="font-medium text-stone-800">{result.sack.merk}</dd>
-              </div>
-              <div className="flex justify-between gap-4">
-                <dt className="text-stone-500">Jenis pupuk</dt>
-                <dd className="font-medium text-stone-800">
-                  {result.sack.jenis} &middot; {result.sack.beratKg} kg
-                </dd>
-              </div>
-              <div className="flex justify-between gap-4">
-                <dt className="text-stone-500">No. batch</dt>
-                <dd className="font-medium text-stone-800">{result.sack.batch}</dd>
-              </div>
-              <div className="flex justify-between gap-4">
-                <dt className="text-stone-500">Tanggal produksi</dt>
-                <dd className="font-medium text-stone-800">{result.sack.tglProduksi}</dd>
-              </div>
-              <div className="flex justify-between gap-4">
-                <dt className="text-stone-500">Distributor</dt>
-                <dd className="font-medium text-stone-800">{result.sack.distributor}</dd>
-              </div>
-            </dl>
-          ) : (
-            <div className="mt-4 rounded-lg bg-red-100 p-4">
-              <p className="text-sm font-semibold text-red-800">Peringatan: karung tidak dikenal</p>
-              <p className="mt-1 text-sm text-red-700">{result.reason}</p>
-              <p className="mt-2 text-xs text-red-600">
-                Jangan gunakan pupuk ini. Laporkan ke distributor atau kelompok tani.
-              </p>
-            </div>
-          )}
-        </div>
-      )}
-
-      {phase === "idle" && (
-        <p className="mt-5 text-center text-sm text-stone-500">
-          Tekan tombol untuk mensimulasikan pemindaian tag RFID pada karung pupuk.
+          {phase === "scanning" ? "MEMINDAI..." : "PINDAI"}
+        </button>
+        <p className="mt-2 text-center font-mono text-[11px] text-emerald-100/35">
+          hasil pindai dari basis data contoh
         </p>
-      )}
+      </div>
     </div>
   );
 }
