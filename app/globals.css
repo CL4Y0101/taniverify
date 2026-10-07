@@ -17,3 +17,40 @@ body {
   background-color: #faf6ee;
   color: #292524;
 }
+
+.dash-scanline {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #d9a441;
+  box-shadow: 0 0 12px rgba(217, 164, 65, 0.9);
+  animation: dash-scanline-move 1.6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes dash-scanline-move {
+  0%,
+  100% {
+    top: 8%;
+  }
+  50% {
+    top: 90%;
+  }
+}
+
+.cursor-blink::after {
+  content: "▊";
+  margin-left: 2px;
+  animation: cursor-blink-anim 1s step-end infinite;
+}
+
+@keyframes cursor-blink-anim {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
