@@ -48,10 +48,12 @@ export function ScannerPanel({ onScan }: ScannerPanelProps) {
       setProgress(pct);
       if (pct >= 100) {
         if (timerRef.current) clearInterval(timerRef.current);
-        const record = simulateScan();
-        setResult(record);
-        setPhase("done");
-        onScan(record);
+        void (async () => {
+          const record = await simulateScan();
+          setResult(record);
+          setPhase("done");
+          onScan(record);
+        })();
       }
     }, 60);
   };
