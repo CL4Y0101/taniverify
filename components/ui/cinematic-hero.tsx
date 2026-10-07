@@ -2,6 +2,7 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -47,19 +48,24 @@ const INJECTED_STYLES = `
       mix-blend-mode: screen; transition: opacity 0.3s ease;
   }
 
-  .scanner-bezel {
-      background-color: #0B2417;
+  .iphone-bezel {
+      background: linear-gradient(145deg, #3a3a3c 0%, #1c1c1e 60%, #2c2c2e 100%);
       box-shadow:
-          inset 0 0 0 2px #2E5B42,
-          inset 0 0 0 7px #000,
+          inset 0 0 0 2px #48484a,
+          inset 0 0 0 6px #000,
           0 40px 80px -15px rgba(0,0,0,0.55),
           0 15px 25px -5px rgba(0,0,0,0.45);
       transform-style: preserve-3d;
   }
 
-  .scanner-screen {
-      background-color: #10291C;
+  .iphone-screen {
+      background: linear-gradient(180deg, #123c29 0%, #0b2417 100%);
       box-shadow: inset 0 2px 12px rgba(0,0,0,0.6);
+  }
+
+  .dynamic-island {
+      background: #000;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
   }
 
   .hardware-btn {
@@ -146,36 +152,105 @@ export interface CinematicHeroProps extends React.HTMLAttributes<HTMLDivElement>
   ctaDescription?: string;
 }
 
-function ScannerMockup() {
+function IphoneMockup() {
   return (
-    <div className="relative w-[260px] h-[500px] rounded-[2.2rem] scanner-bezel flex flex-col will-change-transform">
-      <div className="absolute top-[110px] -left-[3px] w-[3px] h-[25px] hardware-btn rounded-l-md z-0" aria-hidden="true" />
-      <div className="absolute top-[150px] -left-[3px] w-[3px] h-[45px] hardware-btn rounded-l-md z-0" aria-hidden="true" />
+    <div className="relative w-[270px] h-[570px] rounded-[3rem] iphone-bezel flex flex-col will-change-transform">
+      <div className="absolute top-[110px] -left-[3px] w-[3px] h-[28px] hardware-btn rounded-l-md z-0" aria-hidden="true" />
+      <div className="absolute top-[155px] -left-[3px] w-[3px] h-[52px] hardware-btn rounded-l-md z-0" aria-hidden="true" />
+      <div className="absolute top-[155px] -right-[3px] w-[3px] h-[80px] hardware-btn rounded-r-md z-0" aria-hidden="true" />
 
-      <div className="scanner-screen relative m-3 mt-4 rounded-xl p-4 overflow-hidden flex-1">
-        <div className="screen-glare absolute inset-0 pointer-events-none" aria-hidden="true" />
-        <div className="scanline" aria-hidden="true" />
-        <p className="text-[#D9A441] text-xs font-bold tracking-[0.2em]">TANIVERIFY</p>
-        <p className="text-[#FAF6EE]/60 text-[11px] mt-3">UID terbaca</p>
-        <p className="text-[#FAF6EE] font-mono text-lg font-semibold">04:A3:2B:9C</p>
-        <div className="mt-3 inline-flex items-center rounded-md bg-[#1C5B3C] px-3 py-1.5">
-          <span className="text-white text-sm font-bold tracking-wide">ASLI</span>
+      <div className="iphone-screen relative m-2.5 rounded-[2.4rem] overflow-hidden flex-1 flex flex-col">
+        <div className="dynamic-island absolute top-2.5 left-1/2 -translate-x-1/2 w-24 h-[22px] rounded-full z-20" aria-hidden="true" />
+        <div className="screen-glare absolute inset-0 pointer-events-none z-10" aria-hidden="true" />
+
+        <div className="flex items-center justify-between px-7 pt-3.5 text-[#FAF6EE] relative z-10">
+          <span className="text-[13px] font-semibold tracking-wide">9:41</span>
+          <span className="flex items-center gap-1.5" aria-hidden="true">
+            <svg width="16" height="11" viewBox="0 0 16 11" fill="currentColor">
+              <rect x="0" y="7" width="3" height="4" rx="0.5" />
+              <rect x="4.5" y="5" width="3" height="6" rx="0.5" />
+              <rect x="9" y="2.5" width="3" height="8.5" rx="0.5" />
+              <rect x="13" y="0" width="3" height="11" rx="0.5" opacity="0.35" />
+            </svg>
+            <svg width="15" height="11" viewBox="0 0 16 12" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+              <path d="M1.5 4.5a10 10 0 0 1 13 0" />
+              <path d="M4.5 7.5a6 6 0 0 1 7 0" />
+              <circle cx="8" cy="10" r="1.2" fill="currentColor" stroke="none" />
+            </svg>
+            <svg width="24" height="12" viewBox="0 0 25 12" fill="none">
+              <rect x="0.5" y="0.5" width="21" height="11" rx="3.5" stroke="currentColor" opacity="0.4" />
+              <rect x="2" y="2" width="15" height="8" rx="2" fill="currentColor" />
+              <path d="M23.5 4v4a2.2 2.2 0 0 0 0-4z" fill="currentColor" opacity="0.4" />
+            </svg>
+          </span>
         </div>
-        <div className="mt-3 space-y-1 text-[12px] text-[#FAF6EE]/80">
-          <p>Urea &middot; 50 kg</p>
-          <p>Batch TS-U-2026-041</p>
-        </div>
-        <div className="absolute bottom-4 left-4 right-4">
-          <div className="h-1.5 rounded-full bg-white/10">
-            <div className="h-1.5 rounded-full bg-[#D9A441]" style={{ width: "100%" }} />
+
+        <div className="flex items-center gap-2.5 px-5 mt-4 relative z-10">
+          <Image
+            src="/images/taniverify-logo.webp"
+            alt="Logo TaniVerify"
+            width={36}
+            height={36}
+            className="h-9 w-9 rounded-[10px]"
+          />
+          <div>
+            <p className="text-[#FAF6EE] text-[15px] font-bold leading-tight">TaniVerify</p>
+            <p className="text-[#FAF6EE]/50 text-[11px]">Pemindai RFID</p>
           </div>
-          <p className="text-[#FAF6EE]/50 text-[10px] mt-1">Pindai selesai</p>
+          <span className="ml-auto flex items-center gap-1.5 text-[11px] text-[#FAF6EE]/70">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+            RC522
+          </span>
         </div>
-      </div>
 
-      <div className="flex justify-center pb-5">
-        <div className="w-16 h-16 rounded-full bg-[#D9A441] flex items-center justify-center shadow-lg">
-          <span className="text-[#1A1207] text-[11px] font-bold">PINDAI</span>
+        <div className="mx-4 mt-4 rounded-2xl bg-white/[0.07] border border-white/10 p-4 relative z-10 overflow-hidden">
+          <div className="scanline" aria-hidden="true" />
+          <p className="text-[#FAF6EE]/50 text-[10px] tracking-[0.18em] font-semibold">UID TERBACA</p>
+          <p className="text-[#FAF6EE] font-mono text-[17px] font-semibold mt-1">04:A3:2B:9C</p>
+          <div className="mt-2.5 inline-flex items-center gap-1.5 rounded-lg bg-[#1C5B3C] px-3 py-1.5">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+              <circle cx="6" cy="6" r="5.2" stroke="#fff" strokeWidth="1.4" />
+              <path d="M3.8 6.2l1.6 1.6 2.8-3" stroke="#fff" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            <span className="text-white text-[13px] font-bold tracking-wide">ASLI</span>
+          </div>
+          <div className="mt-3 space-y-0.5 text-[12px] text-[#FAF6EE]/75">
+            <p>Urea &middot; 50 kg</p>
+            <p className="text-[#FAF6EE]/50">Batch TS-U-2026-041</p>
+          </div>
+        </div>
+
+        <div className="mx-4 mt-3 rounded-2xl bg-[#D9A441] py-3 text-center relative z-10">
+          <span className="text-[#1A1207] text-[14px] font-bold">Pindai Ulang</span>
+        </div>
+
+        <div className="mt-auto relative z-10">
+          <div className="flex items-center justify-around border-t border-white/10 bg-black/25 px-6 py-2.5">
+            <span className="flex flex-col items-center gap-1 text-[#FAF6EE]/40">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
+                <path d="M3 10.5L10 3.5l7 7" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M5 9.5V16h10V9.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              <span className="text-[9px]">Beranda</span>
+            </span>
+            <span className="flex flex-col items-center gap-1 text-[#D9A441]">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
+                <path d="M3 7V3h4M17 13v4h-4M3 3l4 4M17 17l-4-4" strokeLinecap="round" strokeLinejoin="round" />
+                <circle cx="10" cy="10" r="3.2" />
+              </svg>
+              <span className="text-[9px] font-semibold">Pindai</span>
+            </span>
+            <span className="flex flex-col items-center gap-1 text-[#FAF6EE]/40">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
+                <circle cx="10" cy="10" r="7" />
+                <path d="M10 5.5V10l3 2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              <span className="text-[9px]">Riwayat</span>
+            </span>
+          </div>
+          <div className="flex justify-center bg-black/25 pb-2 pt-1">
+            <div className="w-28 h-[4px] rounded-full bg-white/80" aria-hidden="true" />
+          </div>
         </div>
       </div>
     </div>
@@ -369,7 +444,7 @@ export function CinematicHero({
             <div className="mockup-scroll-wrapper order-2 lg:order-2 relative w-full h-[380px] lg:h-[560px] flex items-center justify-center z-10" style={{ perspective: "1000px" }}>
               <div className="relative w-full h-full flex items-center justify-center transform scale-[0.72] md:scale-90 lg:scale-100">
                 <div ref={mockupRef} className="will-change-transform">
-                  <ScannerMockup />
+                  <IphoneMockup />
                 </div>
               </div>
 
