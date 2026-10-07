@@ -27,40 +27,50 @@ function drawLcd(
   progress: number,
   result: DeviceScanResult | null
 ) {
-  ctx.fillStyle = "#0a1f14";
+  // Tampilan LCD karakter 16x2 (kayak HD44780 asli)
+  ctx.fillStyle = "#0b2417";
   ctx.fillRect(0, 0, w, h);
-  ctx.fillStyle = "rgba(0,0,0,0.28)";
-  for (let y = 0; y < h; y += 6) ctx.fillRect(0, y, w, 2);
+
+  // garis sel karakter
+  ctx.strokeStyle = "rgba(0,0,0,0.4)";
+  ctx.lineWidth = 2;
+  for (let i = 0; i <= 16; i++) {
+    const x = (i * w) / 16;
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, h);
+    ctx.stroke();
+  }
+  ctx.beginPath();
+  ctx.moveTo(0, h / 2);
+  ctx.lineTo(w, h / 2);
+  ctx.stroke();
 
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
+  ctx.fillStyle = "#8ff0b3";
+  ctx.shadowColor = "#4ade80";
+  ctx.shadowBlur = 14;
+  ctx.font = "bold 54px 'Courier New', monospace";
+
+  const row = (i: number, text: string) => {
+    ctx.fillText(text.substring(0, 16), w / 2, h / 4 + i * (h / 2));
+  };
 
   if (phase === "idle") {
-    ctx.fillStyle = "#7ddba3";
-    ctx.font = "bold 46px monospace";
-    ctx.fillText("SCAN KARUNG", w / 2, h / 2 - 28);
-    ctx.fillStyle = "#4a7a5c";
-    ctx.font = "28px monospace";
-    ctx.fillText("tempelkan tag RFID", w / 2, h / 2 + 30);
+    row(0, "SCAN KARUNG");
+    row(1, "tempel tag RFID");
   } else if (phase === "scanning") {
-    ctx.fillStyle = "#d9a441";
-    ctx.font = "bold 40px monospace";
-    ctx.fillText("MEMINDAI...", w / 2, h / 2 - 40);
-    ctx.font = "bold 64px monospace";
-    ctx.fillText(`${progress}%`, w / 2, h / 2 + 28);
-    ctx.fillStyle = "rgba(255,255,255,0.12)";
-    ctx.fillRect(56, h - 44, w - 112, 14);
-    ctx.fillStyle = "#d9a441";
-    ctx.fillRect(56, h - 44, ((w - 112) * progress) / 100, 14);
+    row(0, "MEMINDAI...");
+    const blocks = Math.round((progress / 100) * 16);
+    row(1, "█".repeat(blocks) + "░".repeat(16 - blocks));
   } else if (result) {
     const ok = result.verdict === "asli";
-    ctx.fillStyle = ok ? "#4ade80" : "#f87171";
-    ctx.font = "bold 52px monospace";
-    ctx.fillText(ok ? "PUPUK ASLI" : "WASPADA", w / 2, h / 2 - 30);
-    ctx.fillStyle = "#d9a441";
-    ctx.font = "32px monospace";
-    ctx.fillText(result.uid, w / 2, h / 2 + 38);
+    row(0, ok ? "PUPUK ASLI" : "WASPADA !!");
+    ctx.font = "bold 42px 'Courier New', monospace";
+    row(1, result.uid);
   }
+  ctx.shadowBlur = 0;
 }
 
 function LcdScreen({
@@ -126,13 +136,14 @@ function Sack({ phase, progress }: { phase: DevicePhase; progress: number }) {
         <planeGeometry args={[1.02, 0.32]} />
         <meshStandardMaterial color="#1c5b3c" roughness={0.9} />
       </mesh>
+      {/* kartu RFID di karung (kayak kartu putih asli) */}
       <mesh position={[0.22, -0.12, 0.36]}>
-        <planeGeometry args={[0.34, 0.22]} />
-        <meshStandardMaterial color="#ffffff" roughness={0.8} />
+        <planeGeometry args={[0.44, 0.3]} />
+        <meshStandardMaterial color="#f1f5f9" roughness={0.55} />
       </mesh>
-      <mesh position={[0.22, -0.12, 0.37]}>
-        <planeGeometry args={[0.2, 0.1]} />
-        <meshBasicMaterial color="#1c5b3c" toneMapped={false} />
+      <mesh position={[0.12, -0.05, 0.365]}>
+        <planeGeometry args={[0.13, 0.11]} />
+        <meshStandardMaterial color="#b9862f" roughness={0.4} metalness={0.5} />
       </mesh>
     </group>
   );
@@ -141,16 +152,28 @@ function Sack({ phase, progress }: { phase: DevicePhase; progress: number }) {
 function Device({ phase, progress, result, onScanRequest }: Device3DProps) {
   const [hoverBtn, setHoverBtn] = useState(false);
   const btnRef = useRef<THREE.Mesh>(null);
+  const waveRefs = useRef<(THREE.Mesh | null)[]>([]);
 
   useFrame((state) => {
     const b = btnRef.current;
-    if (!b) return;
-    const s = hoverBtn ? 1.12 : 1;
-    b.scale.setScalar(THREE.MathUtils.lerp(b.scale.x, s, 0.2));
-    void state;
+    if (b) {
+      const s = hoverBtn ? 1.12 : 1;
+      b.scale.setScalar(THREE.MathUtils.lerp(b.scale.x, s, 0.2));
+    }
+    // gelombang RFID berdenyut saat memindai
+    const t = state.clock.elapsedTime;
+    waveRefs.current.forEach((m, i) => {
+      if (!m) return;
+      const mat = m.material as THREE.MeshBasicMaterial;
+      const base = 0.95 - i * 0.22;
+      mat.opacity =
+        phase === "scanning"
+          ? Math.min(1, base + Math.sin(t * 5 - i * 0.7) * 0.35)
+          : base;
+    });
   });
 
-  const waves = [0.34, 0.52, 0.7];
+  const waves = [0.4, 0.6, 0.8];
 
   return (
     <group rotation={[0.12, -0.4, 0]} position={[0, -0.15, 0]}>
@@ -194,13 +217,18 @@ function Device({ phase, progress, result, onScanRequest }: Device3DProps) {
       {/* zona baca RFID */}
       <group position={[0, -1.5, 0.54]}>
         {waves.map((r, i) => (
-          <mesh key={r}>
-            <torusGeometry args={[r, 0.032, 10, 40, Math.PI]} />
+          <mesh
+            key={r}
+            ref={(m) => {
+              waveRefs.current[i] = m;
+            }}
+          >
+            <torusGeometry args={[r, 0.042, 10, 40, Math.PI]} />
             <meshBasicMaterial
               color="#d9a441"
               toneMapped={false}
               transparent
-              opacity={0.95 - i * 0.25}
+              opacity={0.95 - i * 0.22}
             />
           </mesh>
         ))}
