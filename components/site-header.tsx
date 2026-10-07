@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 const links = [
   { href: "#fitur", label: "Fitur" },
@@ -12,9 +13,13 @@ export function SiteHeader() {
     <header className="sticky top-0 z-40 border-b border-stone-200 bg-[#faf6ee]/95 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 md:px-8">
         <Link href="/" className="flex items-center gap-2">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#1c5b3c] text-sm font-bold text-white">
-            TV
-          </span>
+          <Image
+            src="/images/taniverify-logo.webp"
+            alt="Logo TaniVerify"
+            width={32}
+            height={32}
+            className="h-8 w-8 rounded-lg"
+          />
           <span className="text-lg font-bold text-stone-800">TaniVerify</span>
         </Link>
         <nav className="hidden items-center gap-6 md:flex">

@@ -1,11 +1,21 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export function SiteFooter() {
   return (
     <footer className="border-t border-stone-200 bg-[#f3ecdd]">
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-12 md:grid-cols-3 md:px-8">
         <div>
-          <p className="text-lg font-bold text-stone-800">TaniVerify</p>
+          <p className="flex items-center gap-2 text-lg font-bold text-stone-800">
+            <Image
+              src="/images/taniverify-logo.webp"
+              alt="Logo TaniVerify"
+              width={28}
+              height={28}
+              className="h-7 w-7 rounded-lg"
+            />
+            TaniVerify
+          </p>
           <p className="mt-2 text-sm text-stone-600">
             Rancang Bangun Sistem Deteksi Pupuk Palsu Berbasis RFID Menggunakan
             ESP32-C6.
