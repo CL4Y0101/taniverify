@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  useEffect,
-  useRef,
-  useState,
-  type ReactNode,
-  type TouchEvent,
-  type WheelEvent,
-} from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 
@@ -20,6 +13,8 @@ interface ScrollExpandMediaProps {
   children?: ReactNode;
 }
 
+const clamp01 = (n: number) => Math.min(Math.max(n, 0), 1);
+
 const ScrollExpandMedia = ({
   mediaSrc,
   bgImageSrc,
@@ -29,113 +24,33 @@ const ScrollExpandMedia = ({
   children,
 }: ScrollExpandMediaProps) => {
   const [scrollProgress, setScrollProgress] = useState<number>(0);
-  const [showContent, setShowContent] = useState<boolean>(false);
-  const [mediaFullyExpanded, setMediaFullyExpanded] = useState<boolean>(false);
-  const [touchStartY, setTouchStartY] = useState<number>(0);
   const [isMobileState, setIsMobileState] = useState<boolean>(false);
 
   const sectionRef = useRef<HTMLDivElement | null>(null);
-  const inViewRef = useRef<boolean>(false);
+  const rafRef = useRef<number>(0);
 
   useEffect(() => {
-    const el = sectionRef.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        inViewRef.current = entry.isIntersecting;
-      },
-      { threshold: 0.35 }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    const advance = (delta: number) => {
-      const newProgress = Math.min(Math.max(scrollProgress + delta, 0), 1);
-      setScrollProgress(newProgress);
-      if (newProgress >= 1) {
-        setMediaFullyExpanded(true);
-        setShowContent(true);
-      } else if (newProgress < 0.75) {
-        setShowContent(false);
-      }
+    const update = () => {
+      const el = sectionRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      setScrollProgress(clamp01(1 - rect.top / window.innerHeight));
     };
 
-    const handleWheel = (e: WheelEvent) => {
-      if (!inViewRef.current) return;
-      if (mediaFullyExpanded && e.deltaY < 0 && window.scrollY <= 5) {
-        setMediaFullyExpanded(false);
-        e.preventDefault();
-      } else if (!mediaFullyExpanded) {
-        e.preventDefault();
-        advance(e.deltaY * 0.0009);
-      }
+    const onScroll = () => {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = requestAnimationFrame(update);
     };
 
-    const handleTouchStart = (e: TouchEvent) => {
-      setTouchStartY(e.touches[0].clientY);
-    };
-
-    const handleTouchMove = (e: TouchEvent) => {
-      if (!inViewRef.current || !touchStartY) return;
-      const touchY = e.touches[0].clientY;
-      const deltaY = touchStartY - touchY;
-
-      if (mediaFullyExpanded && deltaY < -20 && window.scrollY <= 5) {
-        setMediaFullyExpanded(false);
-        e.preventDefault();
-      } else if (!mediaFullyExpanded) {
-        e.preventDefault();
-        const scrollFactor = deltaY < 0 ? 0.008 : 0.005;
-        advance(deltaY * scrollFactor);
-        setTouchStartY(touchY);
-      }
-    };
-
-    const handleTouchEnd = (): void => {
-      setTouchStartY(0);
-    };
-
-    const handleScroll = (): void => {
-      if (inViewRef.current && !mediaFullyExpanded) {
-        window.scrollTo(0, 0);
-      }
-    };
-
-    window.addEventListener("wheel", handleWheel as unknown as EventListener, {
-      passive: false,
-    });
-    window.addEventListener("scroll", handleScroll as EventListener);
-    window.addEventListener(
-      "touchstart",
-      handleTouchStart as unknown as EventListener,
-      { passive: false }
-    );
-    window.addEventListener(
-      "touchmove",
-      handleTouchMove as unknown as EventListener,
-      { passive: false }
-    );
-    window.addEventListener("touchend", handleTouchEnd as EventListener);
-
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
     return () => {
-      window.removeEventListener(
-        "wheel",
-        handleWheel as unknown as EventListener
-      );
-      window.removeEventListener("scroll", handleScroll as EventListener);
-      window.removeEventListener(
-        "touchstart",
-        handleTouchStart as unknown as EventListener
-      );
-      window.removeEventListener(
-        "touchmove",
-        handleTouchMove as unknown as EventListener
-      );
-      window.removeEventListener("touchend", handleTouchEnd as EventListener);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      cancelAnimationFrame(rafRef.current);
     };
-  }, [scrollProgress, mediaFullyExpanded, touchStartY]);
+  }, []);
 
   useEffect(() => {
     const checkIfMobile = (): void => {
@@ -147,6 +62,8 @@ const ScrollExpandMedia = ({
 
     return () => window.removeEventListener("resize", checkIfMobile);
   }, []);
+
+  const showContent = scrollProgress >= 1;
 
   const mediaWidth = 300 + scrollProgress * (isMobileState ? 650 : 1250);
   const mediaHeight = 400 + scrollProgress * (isMobileState ? 200 : 400);
