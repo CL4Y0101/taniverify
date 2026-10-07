@@ -136,41 +136,71 @@ function Sack({ phase, progress }: { phase: DevicePhase; progress: number }) {
         <planeGeometry args={[1.02, 0.32]} />
         <meshStandardMaterial color="#1c5b3c" roughness={0.9} />
       </mesh>
-      {/* kartu RFID di karung (kayak kartu putih asli) */}
+      {/* kartu RFID di karung (proporsi kartu asli 85.6 x 54 mm) */}
       <mesh position={[0.22, -0.12, 0.36]}>
-        <planeGeometry args={[0.44, 0.3]} />
-        <meshStandardMaterial color="#f1f5f9" roughness={0.55} />
+        <planeGeometry args={[0.5, 0.315]} />
+        <meshStandardMaterial color="#f8fafc" roughness={0.5} />
       </mesh>
-      <mesh position={[0.12, -0.05, 0.365]}>
+      <mesh position={[0.13, -0.045, 0.365]}>
         <planeGeometry args={[0.13, 0.11]} />
-        <meshStandardMaterial color="#b9862f" roughness={0.4} metalness={0.5} />
+        <meshStandardMaterial color="#c9a227" roughness={0.4} metalness={0.5} />
       </mesh>
     </group>
   );
 }
 
+function useRc522Texture() {
+  const texture = useMemo(() => {
+    const c = document.createElement("canvas");
+    c.width = 512;
+    c.height = 360;
+    const x = c.getContext("2d");
+    if (x) {
+      x.fillStyle = "#1e4fa3";
+      x.fillRect(0, 0, 512, 360);
+      // pola antena (kayak modul RC522 asli)
+      x.strokeStyle = "#ffffff";
+      x.lineWidth = 6;
+      for (let r = 40; r <= 170; r += 26) {
+        x.beginPath();
+        x.arc(370, 180, r, 0, Math.PI * 2);
+        x.stroke();
+      }
+      x.fillStyle = "#ffffff";
+      x.beginPath();
+      x.arc(370, 180, 8, 0, Math.PI * 2);
+      x.fill();
+      // chip + kristal
+      x.fillStyle = "#0d0d0d";
+      x.fillRect(56, 150, 76, 76);
+      x.fillStyle = "#c8c8c8";
+      x.fillRect(56, 92, 64, 30);
+      // label
+      x.fillStyle = "#ffffff";
+      x.font = "bold 30px monospace";
+      x.textAlign = "left";
+      x.fillText("RC522", 56, 320);
+    }
+    const tex = new THREE.CanvasTexture(c);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    return tex;
+  }, []);
+
+  useEffect(() => () => texture.dispose(), [texture]);
+  return texture;
+}
+
 function Device({ phase, progress, result, onScanRequest }: Device3DProps) {
   const [hoverBtn, setHoverBtn] = useState(false);
   const btnRef = useRef<THREE.Mesh>(null);
-  const waveRefs = useRef<(THREE.Mesh | null)[]>([]);
+  const rc522Tex = useRc522Texture();
 
-  useFrame((state) => {
+  useFrame(() => {
     const b = btnRef.current;
     if (b) {
       const s = hoverBtn ? 1.12 : 1;
       b.scale.setScalar(THREE.MathUtils.lerp(b.scale.x, s, 0.2));
     }
-    // gelombang RFID berdenyut saat memindai
-    const t = state.clock.elapsedTime;
-    waveRefs.current.forEach((m, i) => {
-      if (!m) return;
-      const mat = m.material as THREE.MeshBasicMaterial;
-      const base = 0.95 - i * 0.22;
-      mat.opacity =
-        phase === "scanning"
-          ? Math.min(1, base + Math.sin(t * 5 - i * 0.7) * 0.35)
-          : base;
-    });
   });
 
   const waves = [0.4, 0.6, 0.8];
@@ -214,27 +244,15 @@ function Device({ phase, progress, result, onScanRequest }: Device3DProps) {
         <meshStandardMaterial color="#8a6420" roughness={0.5} />
       </mesh>
 
-      {/* zona baca RFID */}
+      {/* modul RC522 (biru, kayak aslinya) */}
       <group position={[0, -1.5, 0.54]}>
-        {waves.map((r, i) => (
-          <mesh
-            key={r}
-            ref={(m) => {
-              waveRefs.current[i] = m;
-            }}
-          >
-            <torusGeometry args={[r, 0.042, 10, 40, Math.PI]} />
-            <meshBasicMaterial
-              color="#d9a441"
-              toneMapped={false}
-              transparent
-              opacity={0.95 - i * 0.22}
-            />
-          </mesh>
-        ))}
-        <mesh position={[0, -0.06, 0]}>
-          <circleGeometry args={[0.085, 24]} />
-          <meshBasicMaterial color="#d9a441" toneMapped={false} />
+        <mesh position={[0, 0, -0.03]}>
+          <boxGeometry args={[1.5, 1.05, 0.08]} />
+          <meshStandardMaterial color="#1a4488" roughness={0.5} />
+        </mesh>
+        <mesh position={[0, 0, 0.015]}>
+          <planeGeometry args={[1.44, 1.0]} />
+          <meshBasicMaterial map={rc522Tex} toneMapped={false} />
         </mesh>
       </group>
 
