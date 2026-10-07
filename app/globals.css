@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+@theme {
+  --color-paper: #faf6ee;
+  --color-field: #1c5b3c;
+  --color-field-deep: #0f2e20;
+  --color-field-ink: #123c29;
+  --color-amber: #d9a441;
+  --color-amber-deep: #b9862f;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #faf6ee;
+  color: #292524;
+}
