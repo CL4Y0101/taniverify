@@ -109,8 +109,74 @@ function LcdScreen({
   );
 }
 
+function useSackTextures() {
+  const textures = useMemo(() => {
+    // anyaman karung
+    const weave = document.createElement("canvas");
+    weave.width = weave.height = 256;
+    const w = weave.getContext("2d");
+    if (w) {
+      w.fillStyle = "#f2ecdc";
+      w.fillRect(0, 0, 256, 256);
+      w.strokeStyle = "rgba(120,110,90,0.16)";
+      w.lineWidth = 2;
+      for (let i = 0; i <= 256; i += 10) {
+        w.beginPath();
+        w.moveTo(i, 0);
+        w.lineTo(i, 256);
+        w.stroke();
+        w.beginPath();
+        w.moveTo(0, i);
+        w.lineTo(256, i);
+        w.stroke();
+      }
+    }
+    const weaveTex = new THREE.CanvasTexture(weave);
+    weaveTex.colorSpace = THREE.SRGBColorSpace;
+    weaveTex.wrapS = weaveTex.wrapT = THREE.RepeatWrapping;
+
+    // label depan karung
+    const label = document.createElement("canvas");
+    label.width = 512;
+    label.height = 640;
+    const l = label.getContext("2d");
+    if (l) {
+      l.fillStyle = "#f2ecdc";
+      l.fillRect(0, 0, 512, 640);
+      l.fillStyle = "#1c5b3c";
+      l.fillRect(0, 0, 512, 130);
+      l.fillStyle = "#ffffff";
+      l.font = "bold 54px sans-serif";
+      l.textAlign = "center";
+      l.fillText("TANI SUBUR", 256, 84);
+      l.fillStyle = "#1c5b3c";
+      l.font = "bold 108px sans-serif";
+      l.fillText("UREA", 256, 330);
+      l.fillStyle = "#5b5344";
+      l.font = "bold 62px sans-serif";
+      l.fillText("50 kg", 256, 430);
+      l.fillStyle = "#8a8172";
+      l.font = "30px sans-serif";
+      l.fillText("PUPUK BERSUBSIDI", 256, 560);
+    }
+    const labelTex = new THREE.CanvasTexture(label);
+    labelTex.colorSpace = THREE.SRGBColorSpace;
+    return { weaveTex, labelTex };
+  }, []);
+
+  useEffect(
+    () => () => {
+      textures.weaveTex.dispose();
+      textures.labelTex.dispose();
+    },
+    [textures]
+  );
+  return textures;
+}
+
 function Sack({ phase, progress }: { phase: DevicePhase; progress: number }) {
   const ref = useRef<THREE.Group>(null);
+  const { weaveTex, labelTex } = useSackTextures();
 
   useFrame(() => {
     const g = ref.current;
@@ -129,19 +195,26 @@ function Sack({ phase, progress }: { phase: DevicePhase; progress: number }) {
 
   return (
     <group ref={ref} visible={false}>
-      <RoundedBox args={[1.1, 1.4, 0.7]} radius={0.14} smoothness={4}>
-        <meshStandardMaterial color="#e8dcc3" roughness={0.95} />
+      {/* badan karung */}
+      <RoundedBox args={[1.15, 1.5, 0.75]} radius={0.16} smoothness={4}>
+        <meshStandardMaterial map={weaveTex} roughness={0.95} />
       </RoundedBox>
-      <mesh position={[0, 0.28, 0.36]}>
-        <planeGeometry args={[1.02, 0.32]} />
-        <meshStandardMaterial color="#1c5b3c" roughness={0.9} />
+      {/* label depan */}
+      <mesh position={[0, 0.05, 0.385]}>
+        <planeGeometry args={[1.0, 1.25]} />
+        <meshStandardMaterial map={labelTex} roughness={0.95} />
+      </mesh>
+      {/* lipatan atas (diikat) */}
+      <mesh position={[0, 0.82, 0]}>
+        <boxGeometry args={[0.9, 0.18, 0.55]} />
+        <meshStandardMaterial color="#e2d8c0" roughness={0.95} />
       </mesh>
       {/* kartu RFID di karung (proporsi kartu asli 85.6 x 54 mm) */}
-      <mesh position={[0.22, -0.12, 0.36]}>
+      <mesh position={[0.28, -0.38, 0.395]}>
         <planeGeometry args={[0.5, 0.315]} />
         <meshStandardMaterial color="#f8fafc" roughness={0.5} />
       </mesh>
-      <mesh position={[0.13, -0.045, 0.365]}>
+      <mesh position={[0.19, -0.305, 0.4]}>
         <planeGeometry args={[0.13, 0.11]} />
         <meshStandardMaterial color="#c9a227" roughness={0.4} metalness={0.5} />
       </mesh>
