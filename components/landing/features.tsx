@@ -44,7 +44,7 @@ const features = [
 
 export function Features() {
   return (
-    <section id="fitur" className="mx-auto max-w-6xl px-4 py-20 md:px-8">
+    <section id="fitur" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-20 md:px-8">
       <h2 className="text-3xl font-bold text-stone-800 md:text-4xl">Fitur</h2>
       <p className="mt-3 max-w-2xl text-stone-600">
         Empat hal yang dikerjakan perangkat, dirancang agar sederhana dipakai di

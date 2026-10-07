@@ -27,7 +27,7 @@ const parts = [
 
 export function Hardware() {
   return (
-    <section id="perangkat" className="mx-auto max-w-6xl px-4 py-20 md:px-8">
+    <section id="perangkat" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-20 md:px-8">
       <h2 className="text-3xl font-bold text-stone-800 md:text-4xl">Perangkat keras</h2>
       <p className="mt-3 max-w-2xl text-stone-600">
         Komponen yang dipakai, beserta peran masing-masing. Tidak ada yang
