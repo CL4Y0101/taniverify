@@ -1,6 +1,7 @@
 import { CinematicHero } from "@/components/ui/cinematic-hero";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { SiteDock } from "@/components/landing/site-dock";
 import { ScanFlow } from "@/components/landing/scan-flow";
 import { Features } from "@/components/landing/features";
 import { HowItWorks } from "@/components/landing/how-it-works";
@@ -20,6 +21,7 @@ export default function Home() {
         <Team />
       </main>
       <SiteFooter />
+      <SiteDock />
     </div>
   );
 }
