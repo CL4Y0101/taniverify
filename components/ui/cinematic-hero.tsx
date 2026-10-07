@@ -390,10 +390,10 @@ export function CinematicHero({
       <div className="film-grain" aria-hidden="true" />
 
       <div className="hero-text-wrapper absolute z-10 flex flex-col items-center justify-center text-center w-screen px-4 will-change-transform">
-        <h1 className="text-track gsap-reveal text-5xl md:text-7xl lg:text-[6rem] font-bold tracking-tight mb-2 text-[#1c5b3c]">
+        <h1 className="text-track gsap-reveal text-5xl md:text-7xl lg:text-[6rem] font-bold tracking-tight leading-[1.06] mb-2 text-[#1c5b3c]">
           {tagline1}
         </h1>
-        <h1 className="text-days gsap-reveal text-5xl md:text-7xl lg:text-[6rem] font-extrabold tracking-tighter text-stone-800">
+        <h1 className="text-days gsap-reveal text-5xl md:text-7xl lg:text-[6rem] font-extrabold tracking-tighter leading-[1.06] text-stone-800">
           {tagline2}
         </h1>
       </div>
