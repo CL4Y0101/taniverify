@@ -1,8 +1,21 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import { simulateScan, type ScanRecord } from "@/lib/simulation";
 import { cn } from "@/lib/utils";
+
+const Device3D = dynamic(
+  () => import("@/components/dashboard/device-3d").then((m) => m.Device3D),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex h-full items-center justify-center">
+        <p className="font-mono text-sm text-emerald-100/40">memuat model 3D...</p>
+      </div>
+    ),
+  }
+);
 
 type Phase = "idle" | "scanning" | "done";
 
@@ -56,9 +69,23 @@ export function ScannerPanel({ onScan }: ScannerPanelProps) {
         </span>
       </div>
 
-      <div className="relative min-h-[228px] px-5 py-5">
-        {phase === "scanning" && <div className="dash-scanline" aria-hidden="true" />}
+      <div className="relative h-[330px] md:h-[360px]">
+        <div
+          className="pointer-events-none absolute left-1/2 top-1/2 h-56 w-56 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#1c5b3c]/40 blur-3xl"
+          aria-hidden="true"
+        />
+        <Device3D
+          phase={phase}
+          progress={progress}
+          result={result ? { verdict: result.verdict, uid: result.uid } : null}
+          onScanRequest={startScan}
+        />
+        <p className="pointer-events-none absolute bottom-1 left-0 right-0 text-center font-mono text-[11px] text-emerald-100/35">
+          seret untuk memutar &middot; klik tombol kuning untuk memindai
+        </p>
+      </div>
 
+      <div className="relative min-h-[120px] px-5 pb-1">
         {phase === "idle" && (
           <div className="font-mono text-[13px] leading-6 text-emerald-100/60">
             <p>&gt; RC522 siap.</p>
@@ -72,12 +99,11 @@ export function ScannerPanel({ onScan }: ScannerPanelProps) {
 
         {phase === "scanning" && (
           <div className="font-mono text-[13px] leading-6">
-            <p className="text-emerald-100/80">&gt; Membaca UID...</p>
-            <p className="mt-3 text-3xl font-bold text-amber tabular-nums">
-              {progress}
-              <span className="text-lg">%</span>
+            <p className="text-emerald-100/80">
+              &gt; Membaca UID...{" "}
+              <span className="text-amber tabular-nums">{progress}%</span>
             </p>
-            <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/10">
+            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10">
               <div
                 className="h-1.5 rounded-full bg-amber transition-[width] duration-75"
                 style={{ width: `${progress}%` }}
