@@ -331,6 +331,10 @@ export function CinematicHero({
   useEffect(() => {
     const isMobile = window.innerWidth < 768;
 
+    // Bersihkan trigger basi dari mount sebelumnya (navigasi SPA bisa
+    // menyisakan zombie yang bikin timeline nyangkut)
+    ScrollTrigger.getAll().forEach((st) => st.kill());
+
     let introTl: gsap.core.Timeline;
     const ctx = gsap.context(() => {
       gsap.set(".text-track", { autoAlpha: 0, y: 60, scale: 0.85, filter: "blur(20px)" });
@@ -388,6 +392,8 @@ export function CinematicHero({
 
     }, containerRef);
 
+    ScrollTrigger.refresh();
+
     // Kalau halaman di-restore dari bfcache (tombol back), React tidak
     // me-remount sehingga inline style GSAP yang basi (hero blur/fade dari
     // posisi scroll sebelum pergi) tetap nempel: reset paksa di sini.
@@ -401,6 +407,7 @@ export function CinematicHero({
 
     return () => {
       window.removeEventListener("pageshow", onPageShow);
+      ScrollTrigger.getAll().forEach((st) => st.kill());
       ctx.revert();
     };
   }, [metricValue]);
@@ -408,14 +415,14 @@ export function CinematicHero({
   return (
     <div
       ref={containerRef}
-      className={cn("relative w-screen h-screen overflow-hidden flex items-center justify-center bg-[#faf6ee] text-stone-800 font-sans antialiased", className)}
+      className={cn("relative w-full h-screen overflow-hidden flex items-center justify-center bg-[#faf6ee] text-stone-800 font-sans antialiased", className)}
       style={{ perspective: "1500px" }}
       {...props}
     >
       <style dangerouslySetInnerHTML={{ __html: INJECTED_STYLES }} />
       <div className="film-grain" aria-hidden="true" />
 
-      <div className="hero-text-wrapper absolute z-10 flex flex-col items-center justify-center text-center w-screen px-4 will-change-transform">
+      <div className="hero-text-wrapper absolute z-10 flex flex-col items-center justify-center text-center w-full px-4 will-change-transform">
         <h1 className="text-track gsap-reveal text-5xl md:text-7xl lg:text-[6rem] font-bold tracking-tight leading-[1.06] mb-2 text-[#1c5b3c]">
           {tagline1}
         </h1>
@@ -424,7 +431,7 @@ export function CinematicHero({
         </h1>
       </div>
 
-      <div className="cta-wrapper absolute z-10 flex flex-col items-center justify-center text-center w-screen px-4 gsap-reveal pointer-events-auto will-change-transform">
+      <div className="cta-wrapper absolute z-10 flex flex-col items-center justify-center text-center w-full px-4 gsap-reveal pointer-events-auto will-change-transform">
         <h2 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 tracking-tight text-[#1c5b3c]">
           {ctaHeading}
         </h2>
