@@ -3,12 +3,24 @@ import { cn } from "@/lib/utils";
 
 interface ActivityFeedProps {
   scans: ScanRecord[];
+  live?: boolean;
 }
 
-export function ActivityFeed({ scans }: ActivityFeedProps) {
+export function ActivityFeed({ scans, live }: ActivityFeedProps) {
   return (
     <div className="rounded-2xl border border-stone-200 bg-white p-5 md:p-6">
-      <h2 className="text-lg font-bold text-stone-800">Aktivitas Terakhir</h2>
+      <div className="flex items-center gap-2">
+        <h2 className="text-lg font-bold text-stone-800">Aktivitas Terakhir</h2>
+        {live && (
+          <span className="flex items-center gap-1.5 rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-bold text-emerald-800">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-60" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-600" />
+            </span>
+            LIVE
+          </span>
+        )}
+      </div>
       {scans.length === 0 ? (
         <p className="mt-4 border border-dashed border-stone-300 p-5 text-center text-sm text-stone-400">
           Belum ada pindai pada sesi ini. Hasil pindaian akan tercatat di sini.

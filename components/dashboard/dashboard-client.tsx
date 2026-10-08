@@ -6,17 +6,89 @@ import { ScannerPanel } from "@/components/dashboard/scanner-panel";
 import { StatsCards } from "@/components/dashboard/stats-cards";
 import { DoseLogPanel } from "@/components/dashboard/dose-log";
 import { ActivityFeed } from "@/components/dashboard/activity-feed";
+import { db } from "@/lib/firebase";
+import {
+  collection,
+  query,
+  orderBy,
+  limit,
+  onSnapshot,
+} from "firebase/firestore";
 import {
   loadDoseLogs,
   saveDoseLogs,
   type DoseLog,
   type ScanRecord,
 } from "@/lib/simulation";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 export function DashboardClient() {
   const [scans, setScans] = useState<ScanRecord[]>([]);
+  const [liveScans, setLiveScans] = useState<ScanRecord[]>([]);
   const [doseLogs, setDoseLogs] = useState<DoseLog[]>(() => loadDoseLogs());
+
+  // Dengarkan pindaian dari perangkat ESP32 (collection `scans`,
+  // dokumen dengan sumber="perangkat"). Muncul otomatis tanpa refresh.
+  useEffect(() => {
+    const q = query(
+      collection(db, "scans"),
+      orderBy("waktu", "desc"),
+      limit(25)
+    );
+    const unsub = onSnapshot(
+      q,
+      (snap) => {
+        const list: ScanRecord[] = [];
+        snap.forEach((d) => {
+          const data = d.data();
+          if (data.sumber !== "perangkat") return;
+          const t = data.waktu as { toDate?: () => Date } | undefined;
+          const iso =
+            t && typeof t.toDate === "function"
+              ? t.toDate().toISOString()
+              : new Date().toISOString();
+          const uid = String(data.uid ?? "?");
+          const verdict = data.verdict === "palsu" ? "palsu" : "asli";
+          list.push({
+            id: d.id,
+            waktu: iso,
+            uid,
+            verdict,
+            ...(verdict === "asli"
+              ? {
+                  sack: {
+                    uid,
+                    merk: String(data.merk ?? "-"),
+                    jenis: String(data.jenis ?? "-"),
+                    beratKg: 0,
+                    batch: "-",
+                    tglProduksi: "-",
+                    distributor: "perangkat",
+                  },
+                }
+              : {
+                  reason: String(
+                    data.reason ?? "UID tidak terdaftar di basis data"
+                  ),
+                }),
+          });
+        });
+        setLiveScans(list);
+      },
+      () => {
+        // Kalau listener gagal, mode simulasi tetap jalan normal.
+      }
+    );
+    return () => unsub();
+  }, []);
+
+  const allScans = useMemo(
+    () =>
+      [...liveScans, ...scans].sort(
+        (a, b) => +new Date(b.waktu) - +new Date(a.waktu)
+      ),
+    [liveScans, scans]
+  );
 
   const addScan = (record: ScanRecord) => {
     setScans((prev) => [record, ...prev]);
@@ -38,8 +110,8 @@ export function DashboardClient() {
     });
   };
 
-  const asli = scans.filter((s) => s.verdict === "asli").length;
-  const palsu = scans.filter((s) => s.verdict === "palsu").length;
+  const asli = allScans.filter((s) => s.verdict === "asli").length;
+  const palsu = allScans.filter((s) => s.verdict === "palsu").length;
 
   return (
     <div className="min-h-screen bg-paper">
@@ -87,7 +159,7 @@ export function DashboardClient() {
           </div>
           <div className="lg:col-span-2">
             <StatsCards
-              total={scans.length}
+              total={allScans.length}
               asli={asli}
               palsu={palsu}
               doseLogs={doseLogs.length}
@@ -104,7 +176,7 @@ export function DashboardClient() {
             />
           </div>
           <div className="lg:col-span-2">
-            <ActivityFeed scans={scans} />
+            <ActivityFeed scans={allScans} live={liveScans.length > 0} />
           </div>
         </div>
       </main>
