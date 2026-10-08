@@ -342,7 +342,7 @@ export function CinematicHero({
       introTl = gsap.timeline({ delay: 0.3 });
       introTl
         .to(".text-track", { duration: 1.8, autoAlpha: 1, y: 0, scale: 1, filter: "blur(0px)", ease: "expo.out" })
-        .to(".text-days", { duration: 1.4, clipPath: "inset(0 0% 0 0)", ease: "power4.inOut" }, "-=1.0");
+        .to(".text-days", { duration: 1.4, clipPath: "inset(0 0% 0 0)", ease: "power4.inOut", clearProps: "clipPath" }, "-=1.0");
 
       const scrollTl = gsap.timeline({
         scrollTrigger: {
