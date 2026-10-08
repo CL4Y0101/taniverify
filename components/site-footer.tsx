@@ -35,6 +35,9 @@ export function SiteFooter() {
             <Link href="/dashboard" className="text-stone-600 hover:text-[#1c5b3c]">
               Dashboard Simulasi
             </Link>
+            <Link href="/panduan" className="text-stone-600 hover:text-[#1c5b3c]">
+              Panduan Presenter
+            </Link>
             <a href="#cara-kerja" className="text-stone-600 hover:text-[#1c5b3c]">
               Cara Kerja
             </a>
