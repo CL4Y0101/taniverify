@@ -97,6 +97,7 @@ export async function simulateScan(): Promise<ScanRecord> {
       uid: record.uid,
       verdict: record.verdict,
       waktu: serverTimestamp(),
+      sumber: "simulasi",
       ...(record.sack
         ? { merk: record.sack.merk, jenis: record.sack.jenis }
         : { reason: record.reason ?? "" }),
