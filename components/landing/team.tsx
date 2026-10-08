@@ -1,9 +1,11 @@
+import Image from "next/image";
+
 const members = [
-  { name: "Aditya Fadni Athaullah", role: "Ketua kelompok" },
-  { name: "Riky Rio Wirawan", role: "Anggota" },
-  { name: "Dhimas Ananta I M", role: "Anggota" },
-  { name: "Rizki Agung Firmansyah", role: "Anggota" },
-  { name: "Indra Nur Hafiyyan", role: "Anggota" },
+  { name: "Aditya Fadni Athaullah", role: "Ketua kelompok", img: "/images/team/aditya.webp" },
+  { name: "Riky Rio Wirawan", role: "Anggota", img: "/images/team/riky.webp" },
+  { name: "Dhimas Ananta I M", role: "Anggota", img: "/images/team/dhimas.webp" },
+  { name: "Rizki Agung Firmansyah", role: "Anggota", img: "/images/team/rizki.webp" },
+  { name: "Indra Nur Hafiyyan", role: "Anggota", img: "/images/team/indra.webp" },
 ];
 
 export function Team() {
@@ -16,10 +18,17 @@ export function Team() {
         </p>
         <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
           {members.map((m) => (
-            <div key={m.name} className="rounded-xl border border-stone-200 bg-[#faf6ee] p-5">
-              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#1c5b3c] text-sm font-bold text-white">
-                {m.name.split(" ").map((w) => w[0]).slice(0, 2).join("")}
-              </div>
+            <div
+              key={m.name}
+              className="group rounded-xl border border-stone-200 bg-[#faf6ee] p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_12px_32px_rgba(28,91,60,0.12)]"
+            >
+              <Image
+                src={m.img}
+                alt={m.name}
+                width={96}
+                height={96}
+                className="h-16 w-16 rounded-full border-2 border-[#1c5b3c]/20 object-cover transition-transform duration-300 group-hover:scale-105"
+              />
               <p className="mt-3 text-sm font-semibold text-stone-800">{m.name}</p>
               <p className="mt-1 text-xs text-stone-500">{m.role}</p>
             </div>
