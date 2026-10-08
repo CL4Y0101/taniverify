@@ -331,6 +331,7 @@ export function CinematicHero({
   useEffect(() => {
     const isMobile = window.innerWidth < 768;
 
+    let introTl: gsap.core.Timeline;
     const ctx = gsap.context(() => {
       gsap.set(".text-track", { autoAlpha: 0, y: 60, scale: 0.85, filter: "blur(20px)" });
       gsap.set(".text-days", { autoAlpha: 1, clipPath: "inset(0 100% 0 0)" });
@@ -338,7 +339,7 @@ export function CinematicHero({
       gsap.set([".card-left-text", ".card-right-text", ".mockup-scroll-wrapper", ".floating-badge", ".phone-widget"], { autoAlpha: 0 });
       gsap.set(".cta-wrapper", { autoAlpha: 0, scale: 0.8, filter: "blur(30px)" });
 
-      const introTl = gsap.timeline({ delay: 0.3 });
+      introTl = gsap.timeline({ delay: 0.3 });
       introTl
         .to(".text-track", { duration: 1.8, autoAlpha: 1, y: 0, scale: 1, filter: "blur(0px)", ease: "expo.out" })
         .to(".text-days", { duration: 1.4, clipPath: "inset(0 0% 0 0)", ease: "power4.inOut" }, "-=1.0");
@@ -387,7 +388,21 @@ export function CinematicHero({
 
     }, containerRef);
 
-    return () => ctx.revert();
+    // Kalau halaman di-restore dari bfcache (tombol back), React tidak
+    // me-remount sehingga inline style GSAP yang basi (hero blur/fade dari
+    // posisi scroll sebelum pergi) tetap nempel: reset paksa di sini.
+    const onPageShow = (e: PageTransitionEvent) => {
+      if (!e.persisted) return;
+      window.scrollTo(0, 0);
+      ScrollTrigger.refresh();
+      introTl.restart();
+    };
+    window.addEventListener("pageshow", onPageShow);
+
+    return () => {
+      window.removeEventListener("pageshow", onPageShow);
+      ctx.revert();
+    };
   }, [metricValue]);
 
   return (
